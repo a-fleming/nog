@@ -1,6 +1,17 @@
+import json
 import os
 
 from dotenv import load_dotenv
+from pathlib import Path
+
+COOKIE_PATH = Path("cookies.json")
+ENCODING = "utf-8"
+
+def load_cookies() -> list[dict]:
+    if not COOKIE_PATH.is_file():
+        return []
+    return json.loads(COOKIE_PATH.read_text(encoding=ENCODING))
+
 
 def load_credentials() -> tuple[str, str]:
     load_dotenv()
@@ -13,9 +24,12 @@ def load_credentials() -> tuple[str, str]:
     return github_username, github_password
 
 def main():
-    github_username, github_password = load_credentials()
-    print(f"Username: {github_username}")
-
+    cookies = load_cookies()
+    if cookies:
+        print("Found cookies:")
+        print(cookies)
+    else:
+        print("No cookies found")
 
 if __name__ == "__main__":
     main()
