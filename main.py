@@ -1,9 +1,12 @@
 import json
 import os
 
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from pathlib import Path
-from playwright.sync_api import Cookie, Page, Playwright, sync_playwright
+from playwright.sync_api import Page, Playwright, sync_playwright
+from typing import Self
 
 SESSION_COOKIE_PATH = Path("session_cookie.json")
 ENCODING = "utf-8"
@@ -11,13 +14,43 @@ LOGIN_URL = "https://adventofcode.com/2025/auth/login"
 REDIRECT_URL = "https://adventofcode.com/2025"
 
 
-def get_session_cookie(page: Page) -> Cookie | None:
+@dataclass
+class SessionRecord:
+    value: str
+    expires: float | None = None
+    created_at: datetime | None = None
+    source: str = "unknown"
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            value=data["value"],
+            expires=data.get("expires"),
+            created_at=datetime.fromisoformat(data.get("created_at")),
+            source=data["source"],
+        )
+    
+    def to_dict(self) -> dict:
+        return {
+            "value": self.value,
+            "expires": self.expires,
+            "created_at": self.created_at.isoformat(),
+            "source": self.source,
+        }
+
+def get_session_cookie(page: Page, source:str) -> SessionRecord | None:
     all_cookies = page.context.cookies()
     for cookie in all_cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
-            return cookie
+            return SessionRecord(
+                value=cookie.get("value"),
+                expires=cookie.get("expires"),
+                created_at=datetime.now(timezone.utc),
+                source=source,
+            )
+    return None
 
-def github_login_automation(playwright: Playwright) -> list[Cookie]:
+def github_login_automation(playwright: Playwright) -> SessionRecord:
     github_username, github_password = load_credentials()
 
     # Launch a hidden browser
@@ -65,14 +98,15 @@ def github_login_automation(playwright: Playwright) -> list[Cookie]:
     page.wait_for_url(REDIRECT_URL)
     print("Successfully logged in!")
 
-    session_cookie = get_session_cookie(page)
+    session_cookie = get_session_cookie(page, "playwright-dev")
     browser.close()
     return session_cookie
 
-def load_session_cookie() -> Cookie:
+def load_session_cookie() -> SessionRecord:
     if not SESSION_COOKIE_PATH.is_file():
         return []
-    return Cookie(json.loads(SESSION_COOKIE_PATH.read_text(encoding=ENCODING)))
+    data = json.loads(SESSION_COOKIE_PATH.read_text(encoding=ENCODING))
+    return SessionRecord.from_dict(data)
 
 def load_credentials() -> tuple[str, str]:
     load_dotenv()
@@ -84,8 +118,8 @@ def load_credentials() -> tuple[str, str]:
         raise RuntimeError("GITHUB_PASSWORD environment variable not set")
     return github_username, github_password
 
-def save_session_cookie(cookie: Cookie) -> None:
-    SESSION_COOKIE_PATH.write_text(json.dumps(cookie, indent=4), encoding=ENCODING)
+def save_session_cookie(cookie: SessionRecord) -> None:
+    SESSION_COOKIE_PATH.write_text(json.dumps(cookie.to_dict(), indent=4), encoding=ENCODING)
     print(f"Saved new session cookie to '{str(SESSION_COOKIE_PATH)}'")
 
 def main():
