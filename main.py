@@ -3,12 +3,19 @@ import os
 
 from dotenv import load_dotenv
 from pathlib import Path
-from playwright.sync_api import Cookie, Playwright, sync_playwright
+from playwright.sync_api import Cookie, Page, Playwright, sync_playwright
 
-COOKIE_PATH = Path("cookies.json")
+SESSION_COOKIE_PATH = Path("session_cookie.json")
 ENCODING = "utf-8"
 LOGIN_URL = "https://adventofcode.com/2025/auth/login"
 REDIRECT_URL = "https://adventofcode.com/2025"
+
+
+def get_session_cookie(page: Page) -> Cookie | None:
+    all_cookies = page.context.cookies()
+    for cookie in all_cookies:
+        if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
+            return cookie
 
 def github_login_automation(playwright: Playwright) -> list[Cookie]:
     github_username, github_password = load_credentials()
@@ -58,14 +65,14 @@ def github_login_automation(playwright: Playwright) -> list[Cookie]:
     page.wait_for_url(REDIRECT_URL)
     print("Successfully logged in!")
 
-    cookies = page.context.cookies()
+    session_cookie = get_session_cookie(page)
     browser.close()
-    return cookies
+    return session_cookie
 
-def load_cookies() -> list[Cookie]:
-    if not COOKIE_PATH.is_file():
+def load_session_cookie() -> Cookie:
+    if not SESSION_COOKIE_PATH.is_file():
         return []
-    return json.loads(COOKIE_PATH.read_text(encoding=ENCODING))
+    return Cookie(json.loads(SESSION_COOKIE_PATH.read_text(encoding=ENCODING)))
 
 def load_credentials() -> tuple[str, str]:
     load_dotenv()
@@ -77,19 +84,19 @@ def load_credentials() -> tuple[str, str]:
         raise RuntimeError("GITHUB_PASSWORD environment variable not set")
     return github_username, github_password
 
-def save_cookies(cookies: list[Cookie]) -> None:
-    COOKIE_PATH.write_text(json.dumps(cookies, indent=4), encoding=ENCODING)
-    print(f"Saved new cookies to '{str(COOKIE_PATH)}'")
+def save_session_cookie(cookie: Cookie) -> None:
+    SESSION_COOKIE_PATH.write_text(json.dumps(cookie, indent=4), encoding=ENCODING)
+    print(f"Saved new session cookie to '{str(SESSION_COOKIE_PATH)}'")
 
 def main():
     with sync_playwright() as playwright:
-        cookies = load_cookies()
-        if cookies:
-            print("Found cookies:")
+        session_cookie = load_session_cookie()
+        if session_cookie:
+            print("Found session cookie")
         else:
-            print("No cookies found")
-            cookies = github_login_automation(playwright)
-            save_cookies(cookies)
+            print("No session cookie found")
+            session_cookie = github_login_automation(playwright)
+            save_session_cookie(session_cookie)
 
 
 if __name__ == "__main__":

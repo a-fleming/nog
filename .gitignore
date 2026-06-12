@@ -13,4 +13,4 @@ wheels/
 .env
 
 # Cookies
-cookies.json
+session_cookie.json
