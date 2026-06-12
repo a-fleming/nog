@@ -1,9 +1,10 @@
 [project]
-name = "advent"
+name = "nog"
 version = "0.1.0"
-description = "Add your description here"
+description = "A small Advent of Code helper CLI for fetching inputs, scaffolding solutions, and managing submissions from the terminal."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "playwright>=1.60.0",
     "python-dotenv>=1.2.2",
 ]
