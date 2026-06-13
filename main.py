@@ -17,16 +17,16 @@ REDIRECT_URL = "https://adventofcode.com/2025"
 @dataclass
 class SessionRecord:
     value: str
+    created_at: datetime
     expires: float | None = None
-    created_at: datetime | None = None
     source: str = "unknown"
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
         return cls(
             value=data["value"],
-            expires=data.get("expires"),
-            created_at=datetime.fromisoformat(data.get("created_at")),
+            expires=data.get("expires", None),
+            created_at=datetime.fromisoformat(data["created_at"]),
             source=data["source"],
         )
     
@@ -42,15 +42,18 @@ def get_session_cookie(page: Page, source:str) -> SessionRecord | None:
     all_cookies = page.context.cookies()
     for cookie in all_cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
+            if not cookie.get("value"):
+                return None
+            
             return SessionRecord(
-                value=cookie.get("value"),
+                value=cookie["value"],
                 expires=cookie.get("expires"),
                 created_at=datetime.now(timezone.utc),
                 source=source,
             )
     return None
 
-def github_login_automation(playwright: Playwright) -> SessionRecord:
+def github_login_automation(playwright: Playwright) -> SessionRecord | None:
     github_username, github_password = load_credentials()
 
     # Launch a hidden browser
@@ -102,9 +105,9 @@ def github_login_automation(playwright: Playwright) -> SessionRecord:
     browser.close()
     return session_cookie
 
-def load_session_cookie() -> SessionRecord:
+def load_session_cookie() -> SessionRecord | None:
     if not SESSION_COOKIE_PATH.is_file():
-        return []
+        return None
     data = json.loads(SESSION_COOKIE_PATH.read_text(encoding=ENCODING))
     return SessionRecord.from_dict(data)
 
@@ -129,9 +132,15 @@ def main():
             print("Found session cookie")
         else:
             print("No session cookie found")
-            session_cookie = github_login_automation(playwright)
-            save_session_cookie(session_cookie)
-
+            try:
+                session_cookie = github_login_automation(playwright)
+            except Exception as e:
+                print(f"Github automation failed: {e}")
+            else:
+                if session_cookie:
+                    save_session_cookie(session_cookie)
+                else:
+                    print("GitHub login completed, but no usable Advent of Code session cookie was found.")
 
 if __name__ == "__main__":
     main()
