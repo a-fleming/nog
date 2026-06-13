@@ -16,6 +16,7 @@ REDIRECT_URL = "https://adventofcode.com/2025"
 
 @dataclass
 class SessionRecord:
+    """Persisted Advent of Code session metadata used for local authenticated requests."""
     value: str
     created_at: datetime
     expires: float | None = None
@@ -23,6 +24,7 @@ class SessionRecord:
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
+        """Create a session record from saved session data."""
         return cls(
             value=data["value"],
             expires=data.get("expires", None),
@@ -31,6 +33,7 @@ class SessionRecord:
         )
     
     def to_dict(self) -> dict:
+        """Return this session record as a dict for JSON storage."""
         return {
             "value": self.value,
             "expires": self.expires,
@@ -39,6 +42,7 @@ class SessionRecord:
         }
 
 def extract_aoc_session_cookie(page: Page, source:str) -> SessionRecord | None:
+    """Extract the Advent of Code session cookie from the provided browser page."""
     all_cookies = page.context.cookies()
     for cookie in all_cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
@@ -54,6 +58,7 @@ def extract_aoc_session_cookie(page: Page, source:str) -> SessionRecord | None:
     return None
 
 def github_login_automation(playwright: Playwright) -> SessionRecord | None:
+    """Development-only helper for temporary GitHub login automation."""
     github_username, github_password = load_credentials()
 
     # Launch a hidden browser
@@ -81,7 +86,7 @@ def github_login_automation(playwright: Playwright) -> SessionRecord | None:
             two_fa_code = input("> ")
             page.fill("input[id='app_totp']", two_fa_code)
         
-        # Handle "Configure passwordless authentication" page if it appears
+        # Wait until GitHub has left the login/2FA pages so the trusted-device URL can be checked reliably.
         page.wait_for_url(lambda url: "2fa" not in url and "login" not in url)
         if "trusted-device" in page.url:
             print("Detected trusted-device prompt. Dismissing it...")
@@ -112,6 +117,7 @@ def load_session_cookie() -> SessionRecord | None:
     return SessionRecord.from_dict(data)
 
 def load_credentials() -> tuple[str, str]:
+    """Development-only helper to load GitHub credentials from .env."""
     load_dotenv()
     github_username = os.environ.get("GITHUB_USERNAME")
     if not github_username:
