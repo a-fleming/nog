@@ -38,7 +38,7 @@ class SessionRecord:
             "source": self.source,
         }
 
-def get_session_cookie(page: Page, source:str) -> SessionRecord | None:
+def extract_aoc_session_cookie(page: Page, source:str) -> SessionRecord | None:
     all_cookies = page.context.cookies()
     for cookie in all_cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
@@ -101,7 +101,7 @@ def github_login_automation(playwright: Playwright) -> SessionRecord | None:
     page.wait_for_url(REDIRECT_URL)
     print("Successfully logged in!")
 
-    session_cookie = get_session_cookie(page, "playwright-dev")
+    session_cookie = extract_aoc_session_cookie(page, "playwright-dev")
     browser.close()
     return session_cookie
 
