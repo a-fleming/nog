@@ -6,7 +6,7 @@ The goal is to reduce friction while solving Advent of Code challenges: fetch in
 
 ## Status
 
-Early development. This project is experimental and will evolve as the workflow becomes clearer.
+Early development. Current prototype work focuses on Advent of Code session handling and authentication flow experiments.
 
 ## Planned Direction
 
