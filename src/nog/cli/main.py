@@ -1,6 +1,6 @@
 import argparse
 
-from cli.parsers.template import add_template_area
+from nog.cli.parsers.template import add_template_area
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

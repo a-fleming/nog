@@ -2,7 +2,7 @@ import argparse
 
 from typing import TypeAlias
 
-from cli.commands.template import cmd_template_test
+from nog.cli.commands.template import cmd_template_test
 
 SubparserGroup: TypeAlias = argparse._SubParsersAction
 
