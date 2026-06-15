@@ -1,6 +1,6 @@
 import argparse
 
-from nog.cli.parsers.template import add_template_area
+from nog.cli.parsers.template import add_template_command
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -8,12 +8,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="nog: a small Advent of Code helper CLI for managing puzzle workflows from the terminal",
     )
 
-    area_parsers = parser.add_subparsers(
-        dest="area",
+    command_parsers = parser.add_subparsers(
+        dest="command",
         required=True,
     )
 
-    add_template_area(area_parsers)
+    add_template_command(command_parsers)
 
     return parser
 
