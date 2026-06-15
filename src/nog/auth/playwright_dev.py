@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 from playwright.sync_api import Playwright, sync_playwright
 
 from nog.auth.session import (
-    extract_aoc_session_cookie,
-    load_session_cookie,
-    save_session_cookie,
+    extract_aoc_session_record,
+    load_session_record,
+    save_session_record,
     SessionRecord,
 )
 
@@ -63,9 +63,9 @@ def github_login_automation(playwright: Playwright) -> SessionRecord | None:
     page.wait_for_url(REDIRECT_URL)
     print("Successfully logged in!")
 
-    session_cookie = extract_aoc_session_cookie(page, "playwright-dev")
+    session_record = extract_aoc_session_record(page, "playwright-dev")
     browser.close()
-    return session_cookie
+    return session_record
 
 def load_credentials() -> tuple[str, str]:
     """Development-only helper to load GitHub credentials from .env."""
@@ -80,18 +80,18 @@ def load_credentials() -> tuple[str, str]:
 
 def main():
     with sync_playwright() as playwright:
-        session_cookie = load_session_cookie()
-        if session_cookie:
-            print("Found session cookie")
+        session_record = load_session_record()
+        if session_record:
+            print("Found session record")
         else:
-            print("No session cookie found")
+            print("No session record found")
             try:
-                session_cookie = github_login_automation(playwright)
+                session_record = github_login_automation(playwright)
             except Exception as e:
                 print(f"Github automation failed: {e}")
             else:
-                if session_cookie:
-                    save_session_cookie(session_cookie)
+                if session_record:
+                    save_session_record(session_record)
                 else:
                     print("GitHub login completed, but no usable Advent of Code session cookie was found.")
 

@@ -10,7 +10,7 @@ from typing import Self
 APP_NAME = "nog"
 ENCODING = "utf-8"
 
-SESSION_COOKIE_PATH = Path(user_data_dir(APP_NAME)) / "auth" / "session_cookie.json"
+SESSION_RECORD_PATH = Path(user_data_dir(APP_NAME)) / "auth" / "session_record.json"
 
 
 @dataclass
@@ -40,8 +40,8 @@ class SessionRecord:
             "source": self.source,
         }
 
-def extract_aoc_session_cookie(page: Page, source:str) -> SessionRecord | None:
-    """Extract the Advent of Code session cookie from the provided browser page."""
+def extract_aoc_session_record(page: Page, source:str) -> SessionRecord | None:
+    """Extract the Advent of Code session cookie from the browser page and convert to a SessionRecord."""
     all_cookies = page.context.cookies()
     for cookie in all_cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
@@ -56,13 +56,13 @@ def extract_aoc_session_cookie(page: Page, source:str) -> SessionRecord | None:
             )
     return None
 
-def load_session_cookie() -> SessionRecord | None:
-    if not SESSION_COOKIE_PATH.is_file():
+def load_session_record() -> SessionRecord | None:
+    if not SESSION_RECORD_PATH.is_file():
         return None
-    data = json.loads(SESSION_COOKIE_PATH.read_text(encoding=ENCODING))
+    data = json.loads(SESSION_RECORD_PATH.read_text(encoding=ENCODING))
     return SessionRecord.from_dict(data)
 
-def save_session_cookie(cookie: SessionRecord) -> None:
-    SESSION_COOKIE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SESSION_COOKIE_PATH.write_text(json.dumps(cookie.to_dict(), indent=4), encoding=ENCODING)
-    print(f"Saved new session cookie to '{str(SESSION_COOKIE_PATH)}'")
+def save_session_record(record: SessionRecord) -> None:
+    SESSION_RECORD_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SESSION_RECORD_PATH.write_text(json.dumps(record.to_dict(), indent=4), encoding=ENCODING)
+    print(f"Saved new session record to '{str(SESSION_RECORD_PATH)}'")
