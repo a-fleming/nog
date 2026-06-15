@@ -3,13 +3,14 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from platformdirs import user_data_dir
 from playwright.sync_api import Page
 from typing import Self
 
-SESSION_COOKIE_PATH = Path("session_cookie.json")
+APP_NAME = "nog"
 ENCODING = "utf-8"
-LOGIN_URL = "https://adventofcode.com/2025/auth/login"
-REDIRECT_URL = "https://adventofcode.com/2025"
+
+SESSION_COOKIE_PATH = Path(user_data_dir(APP_NAME)) / "auth" / "session_cookie.json"
 
 
 @dataclass
@@ -62,5 +63,6 @@ def load_session_cookie() -> SessionRecord | None:
     return SessionRecord.from_dict(data)
 
 def save_session_cookie(cookie: SessionRecord) -> None:
+    SESSION_COOKIE_PATH.parent.mkdir(parents=True, exist_ok=True)
     SESSION_COOKIE_PATH.write_text(json.dumps(cookie.to_dict(), indent=4), encoding=ENCODING)
     print(f"Saved new session cookie to '{str(SESSION_COOKIE_PATH)}'")
