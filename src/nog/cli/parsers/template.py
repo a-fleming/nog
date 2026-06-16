@@ -8,6 +8,7 @@ SubparserGroup: TypeAlias = argparse._SubParsersAction
 
 
 def add_template_command(command_parsers: SubparserGroup) -> None:
+    """Register the temporary template command on the top-level parser."""
     template_parser = command_parsers.add_parser(
         "template",
         help="This is a template for creating a subparser command",
@@ -24,5 +25,6 @@ def add_template_command(command_parsers: SubparserGroup) -> None:
         type=int,
         help="A test value"
     )
+    # Keep the parser on the namespace if commands will later reuse it for command-specific help/errors.
     template_test.set_defaults(handler=cmd_template_test, parser=template_test)
     
