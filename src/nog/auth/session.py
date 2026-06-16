@@ -1,11 +1,11 @@
 import json
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from platformdirs import user_data_dir
-from playwright.sync_api import Page
-from typing import Self
+from typing import Any, Self
 
 APP_NAME = "nog"
 ENCODING = "utf-8"
@@ -40,10 +40,9 @@ class SessionRecord:
             "source": self.source,
         }
 
-def extract_aoc_session_record(page: Page, source:str) -> SessionRecord | None:
+def extract_aoc_session_record(cookies: Sequence[Mapping[str, Any]], source:str) -> SessionRecord | None:
     """Extract the Advent of Code session cookie from the browser page and convert to a SessionRecord."""
-    all_cookies = page.context.cookies()
-    for cookie in all_cookies:
+    for cookie in cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
             if not cookie.get("value"):
                 return None

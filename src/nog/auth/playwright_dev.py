@@ -63,7 +63,8 @@ def github_login_automation(playwright: Playwright) -> SessionRecord | None:
     page.wait_for_url(REDIRECT_URL)
     print("Successfully logged in!")
 
-    session_record = extract_aoc_session_record(page, "playwright-dev")
+    cookies = page.context.cookies()
+    session_record = extract_aoc_session_record(cookies, "playwright-dev")
     browser.close()
     return session_record
 
