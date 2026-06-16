@@ -56,13 +56,13 @@ def extract_aoc_session_record(page: Page, source:str) -> SessionRecord | None:
             )
     return None
 
-def load_session_record() -> SessionRecord | None:
-    if not SESSION_RECORD_PATH.is_file():
+def load_session_record(load_path: Path = SESSION_RECORD_PATH) -> SessionRecord | None:
+    if not load_path.is_file():
         return None
-    data = json.loads(SESSION_RECORD_PATH.read_text(encoding=ENCODING))
+    data = json.loads(load_path.read_text(encoding=ENCODING))
     return SessionRecord.from_dict(data)
 
-def save_session_record(record: SessionRecord) -> None:
-    SESSION_RECORD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SESSION_RECORD_PATH.write_text(json.dumps(record.to_dict(), indent=4), encoding=ENCODING)
-    print(f"Saved new session record to '{str(SESSION_RECORD_PATH)}'")
+def save_session_record(record: SessionRecord, save_path: Path = SESSION_RECORD_PATH) -> None:
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    save_path.write_text(json.dumps(record.to_dict(), indent=4), encoding=ENCODING)
+    print(f"Saved new session record to '{str(save_path)}'")
