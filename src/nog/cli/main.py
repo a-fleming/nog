@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    args.func(args)
+    args.handler(args)
     return 0
 
 if __name__ == "__main__":

@@ -24,5 +24,5 @@ def add_template_command(command_parsers: SubparserGroup) -> None:
         type=int,
         help="A test value"
     )
-    template_test.set_defaults(func=cmd_template_test, parser=template_test)
+    template_test.set_defaults(handler=cmd_template_test, parser=template_test)
     
