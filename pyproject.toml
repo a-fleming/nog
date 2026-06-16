@@ -5,6 +5,17 @@ description = "A small Advent of Code helper CLI for fetching inputs, scaffoldin
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "platformdirs>=4.10.0",
     "playwright>=1.60.0",
     "python-dotenv>=1.2.2",
 ]
+
+[project.scripts]
+nog = "nog.cli.main:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

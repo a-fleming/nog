@@ -6,7 +6,7 @@ The goal is to reduce friction while solving Advent of Code challenges: fetch in
 
 ## Status
 
-Early development. Current prototype work focuses on Advent of Code session handling and authentication flow experiments.
+Early development. The project now has a `src/nog` package structure and an initial argparse CLI scaffold, while Advent of Code session handling is still being prototyped. The current Playwright-based auth helper is development-only, and the public command workflow is still under construction.
 
 ## Planned Direction
 
@@ -20,7 +20,7 @@ Early development. Current prototype work focuses on Advent of Code session hand
 - tracking local progress by language
 - avoiding duplicate or unnecessary submissions
 
-## Example Usage
+## Planned Command Shape
 
 ```sh
 nog auth login
