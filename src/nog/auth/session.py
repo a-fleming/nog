@@ -1,11 +1,11 @@
 import json
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from platformdirs import user_data_dir
-from playwright.sync_api import Page
-from typing import Self
+from typing import Any, Self
 
 APP_NAME = "nog"
 ENCODING = "utf-8"
@@ -40,10 +40,9 @@ class SessionRecord:
             "source": self.source,
         }
 
-def extract_aoc_session_record(page: Page, source:str) -> SessionRecord | None:
+def extract_aoc_session_record(cookies: Sequence[Mapping[str, Any]], source:str) -> SessionRecord | None:
     """Extract the Advent of Code session cookie from the browser page and convert to a SessionRecord."""
-    all_cookies = page.context.cookies()
-    for cookie in all_cookies:
+    for cookie in cookies:
         if "adventofcode.com" in cookie.get("domain", "") and cookie.get("name") == "session":
             if not cookie.get("value"):
                 return None
@@ -56,13 +55,13 @@ def extract_aoc_session_record(page: Page, source:str) -> SessionRecord | None:
             )
     return None
 
-def load_session_record() -> SessionRecord | None:
-    if not SESSION_RECORD_PATH.is_file():
+def load_session_record(load_path: Path = SESSION_RECORD_PATH) -> SessionRecord | None:
+    if not load_path.is_file():
         return None
-    data = json.loads(SESSION_RECORD_PATH.read_text(encoding=ENCODING))
+    data = json.loads(load_path.read_text(encoding=ENCODING))
     return SessionRecord.from_dict(data)
 
-def save_session_record(record: SessionRecord) -> None:
-    SESSION_RECORD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SESSION_RECORD_PATH.write_text(json.dumps(record.to_dict(), indent=4), encoding=ENCODING)
-    print(f"Saved new session record to '{str(SESSION_RECORD_PATH)}'")
+def save_session_record(record: SessionRecord, save_path: Path = SESSION_RECORD_PATH) -> None:
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    save_path.write_text(json.dumps(record.to_dict(), indent=4), encoding=ENCODING)
+    print(f"Saved new session record to '{str(save_path)}'")
