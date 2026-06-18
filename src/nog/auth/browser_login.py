@@ -1,8 +1,13 @@
 from playwright.sync_api import Error, sync_playwright
+from time import monotonic
+from urllib.parse import urlparse
 
 from nog.auth.session import extract_aoc_session_record, SessionRecord, save_session_record
 
+AOC_HOST = "adventofcode.com"
+COOKIE_GRACE_SECONDS = 2.0
 LOGIN_URL = "https://adventofcode.com/2025/auth/login"
+LOGIN_SOURCE = "browser-login"
 REDIRECT_URL = "https://adventofcode.com/2025"
 
 
@@ -12,6 +17,12 @@ class BrowserLoginError(Exception):
 class LoginCancelled(Exception):
     pass
 
+class SessionCookieNotFound(Exception):
+    pass
+
+def is_aoc_url(url: str) -> bool:
+    return urlparse(url).hostname == AOC_HOST
+
 def playwright_assisted_login() -> SessionRecord | None:
     try:
         with sync_playwright() as playwright:
@@ -19,13 +30,32 @@ def playwright_assisted_login() -> SessionRecord | None:
                 page = browser.new_page()
                 page.goto(LOGIN_URL)
 
-                # Wait for redirect back to the Advent of Code site
-                page.wait_for_url(REDIRECT_URL, timeout=0)
-                if "adventofcode.com" in page.url:
+                has_left_aoc_site = False
+                returned_to_aoc_at: float | None = None
+
+                while True:
+                    current_url = page.url
+                    on_aoc_site = is_aoc_url(current_url)
                     cookies = page.context.cookies()
-                    session_record = extract_aoc_session_record(cookies, source="browser-login")
-                    return session_record
-        return None
+                    session_record = extract_aoc_session_record(cookies, LOGIN_SOURCE)
+
+                    if session_record is not None:
+                        return session_record
+                    
+                    if not on_aoc_site:
+                        has_left_aoc_site = True
+                        returned_to_aoc_at = None
+                    
+                    if has_left_aoc_site and on_aoc_site:
+                        if returned_to_aoc_at is None:
+                            returned_to_aoc_at = monotonic()
+                        
+                        if monotonic() - returned_to_aoc_at >= COOKIE_GRACE_SECONDS:
+                            raise SessionCookieNotFound
+
+                    page.wait_for_timeout(500)
+    except SessionCookieNotFound:
+        raise
     except Error as err:
         if "browser has been closed" in str(err).lower():
             raise LoginCancelled from err
@@ -54,6 +84,9 @@ def main():
         print("Try running the login command again, or use manual session setup if the issue persists.")
     except LoginCancelled:
         print("Login cancelled. No session was saved.")
+    except SessionCookieNotFound:
+        print("Browser login returned to Advent of Code, but no session cookie was found.")
+        print("Try running the login command again, or use manual session setup if the issue persists.")
 
 if __name__ == "__main__":
     main()
