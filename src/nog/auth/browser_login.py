@@ -33,7 +33,15 @@ def playwright_assisted_login() -> SessionRecord | None:
             raise BrowserLoginError from err    
 
 def main():
+    print()
+    print("nog will open a browser window for Advent of Code login.")
+    print("Log in using your preferred Advent of Code login method.")
+    print("After login succeeds, nog will extract your Advent of Code session and close the browser.")
+    print("Closing the browser will cancel login.")
+    print()
+
     input("Press Enter to open the browser...")
+    print("Waiting for Advent of Code login to complete...")
     try:
         session_record = playwright_assisted_login()
         if session_record:
