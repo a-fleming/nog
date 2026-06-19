@@ -2,6 +2,7 @@ from playwright.sync_api import Error, sync_playwright
 from time import monotonic
 from urllib.parse import urlparse
 
+from nog.auth.errors import BrowserLoginError, LoginCancelled, SessionCookieNotFound
 from nog.auth.session import extract_aoc_session_record, SessionRecord
 
 AOC_HOST = "adventofcode.com"
@@ -10,15 +11,6 @@ LOGIN_URL = "https://adventofcode.com/2025/auth/login"
 LOGIN_SOURCE = "browser-login"
 REDIRECT_URL = "https://adventofcode.com/2025"
 
-
-class BrowserLoginError(Exception):
-    pass
-
-class LoginCancelled(Exception):
-    pass
-
-class SessionCookieNotFound(Exception):
-    pass
 
 def is_aoc_url(url: str) -> bool:
     return urlparse(url).hostname == AOC_HOST
