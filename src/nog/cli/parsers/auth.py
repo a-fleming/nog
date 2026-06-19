@@ -24,5 +24,13 @@ def add_auth_command(command_parsers: SubparserGroup) -> None:
             "and save it locally for future nog commands."
         )
     )
+    auth_login.add_argument(
+        "--dev",
+        action="store_true",
+        help=(
+            "Use the development-only automated GitHub login flow. "
+            "Requires configured dev credentials."
+        ),
+    )
     auth_login.set_defaults(handler=cmd_auth_login, parser=auth_login)
     

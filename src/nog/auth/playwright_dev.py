@@ -86,21 +86,3 @@ def load_credentials() -> tuple[str, str]:
     if not github_password:
         raise DevLoginError("GITHUB_PASSWORD environment variable not set")
     return github_username, github_password
-
-def main():
-    session_record = load_session_record()
-    if session_record:
-        print("Found session record")
-    else:
-        print("No session record found")
-        try:
-            session_record = github_login_automation()
-        except DevLoginError as e:
-            print(f"Github automation failed: {e}")
-        except SessionCookieNotFound:
-            print("Dev login completed, but no session cookie was found.")
-        else:
-            save_session_record(session_record)
-
-if __name__ == "__main__":
-    main()

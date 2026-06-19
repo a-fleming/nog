@@ -1,15 +1,21 @@
 from argparse import Namespace
 
-from nog.auth.browser_login import (
+from nog.auth.browser_login import playwright_assisted_login
+from nog.auth.errors import (
     BrowserLoginError,
+    DevLoginError,
     LoginCancelled,
-    playwright_assisted_login,
     SessionCookieNotFound,
 )
+from nog.auth.playwright_dev import github_login_automation
 from nog.auth.session import save_session_record
 
 
 def cmd_auth_login(args: Namespace) -> None:
+    if args.dev:
+        dev_login()
+        return
+    
     print()
     print("nog will open a browser window for Advent of Code login.")
     print("Log in using your preferred Advent of Code login method.")
@@ -34,3 +40,14 @@ def cmd_auth_login(args: Namespace) -> None:
     except SessionCookieNotFound:
         print("Browser login returned to Advent of Code, but no session cookie was found.")
         print("Try running the login command again, or use manual session setup if the issue persists.")
+
+def dev_login() -> None:
+    try:
+        session_record = github_login_automation()
+    except DevLoginError as e:
+        print(f"Github automation failed: {e}")
+    except SessionCookieNotFound:
+        print("Dev login completed, but no session cookie was found.")
+    else:
+        save_session_record(session_record)
+
