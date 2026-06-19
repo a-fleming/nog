@@ -1,5 +1,6 @@
 import argparse
 
+from nog.cli.parsers.auth import add_auth_command
 from nog.cli.parsers.template import add_template_command
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,6 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    add_auth_command(command_parsers)
     add_template_command(command_parsers)
 
     return parser
