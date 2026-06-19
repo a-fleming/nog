@@ -23,7 +23,7 @@ class SessionCookieNotFound(Exception):
 def is_aoc_url(url: str) -> bool:
     return urlparse(url).hostname == AOC_HOST
 
-def playwright_assisted_login() -> SessionRecord | None:
+def playwright_assisted_login() -> SessionRecord:
     try:
         with sync_playwright() as playwright:
             with playwright.chromium.launch(headless=False, timeout=0) as browser:
