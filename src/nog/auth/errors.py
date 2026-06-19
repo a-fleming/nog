@@ -4,6 +4,9 @@ class AuthError(Exception):
 class BrowserLoginError(AuthError):
     """Raised when browser-assisted login fails unexpectedly."""
 
+class DevLoginError(AuthError):
+    """Raised when the development-only automated login flow fails unexpectedly."""
+
 class LoginCancelled(AuthError):
     """Raised when the user cancels browser-assisted login."""
 
