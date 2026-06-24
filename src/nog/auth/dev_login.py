@@ -4,12 +4,7 @@ from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
 from nog.auth.errors import DevLoginError, SessionCookieNotFound
-from nog.auth.session import (
-    extract_aoc_session_record,
-    load_session_record,
-    save_session_record,
-    SessionRecord,
-)
+from nog.auth.session import extract_aoc_session_record, SessionRecord
 
 LOGIN_URL = "https://adventofcode.com/2025/auth/login"
 REDIRECT_URL = "https://adventofcode.com/2025"
