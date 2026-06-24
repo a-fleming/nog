@@ -49,5 +49,6 @@ def dev_login() -> None:
     except SessionCookieNotFound:
         print("Dev login completed, but no session cookie was found.")
     else:
+        print(f"Successfully extracted Advent of Code session record")
         save_session_record(session_record)
 
