@@ -45,7 +45,7 @@ def dev_login() -> None:
     try:
         session_record = github_login_automation()
     except DevLoginError as e:
-        print(f"Github automation failed: {e}")
+        print(f"GitHub automation failed: {e}")
     except SessionCookieNotFound:
         print("Dev login completed, but no session cookie was found.")
     else:
