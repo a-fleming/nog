@@ -6,7 +6,31 @@ The goal is to reduce friction while solving Advent of Code challenges: fetch in
 
 ## Status
 
-Early development. The project now has a `src/nog` package structure, an initial argparse CLI scaffold, and basic test coverage for CLI parsing and session record behavior. Advent of Code session handling is still being prototyped, and the current Playwright-based auth helper remains development-only.
+Early development. The project now has a `src/nog` package structure, an argparse-based CLI scaffold, local session record storage, and pytest coverage for session handling and CLI command behavior.
+
+As of `v0.2.0`, `nog` includes the first usable authentication workflow:
+
+- `nog auth login` opens a browser-assisted Advent of Code login flow.
+- Users can log in with their preferred Advent of Code login provider.
+- `nog` extracts the Advent of Code session cookie after login succeeds.
+- The session is saved locally as a normalized session record for future commands.
+- A development-only login path is available for local testing.
+
+Puzzle fetching, input downloading, solution scaffolding, running, validation, and answer submission are not implemented yet.
+
+## Current Command Shape
+
+```sh
+nog auth login
+```
+
+Development-only:
+
+```sh
+nog auth login --dev
+```
+
+The `--dev` option is intended for local development and testing. It is not part of the normal user workflow.
 
 ## Planned Direction
 
@@ -32,4 +56,4 @@ The default workflow should stay simple, with options added over time for manual
 
 ## Notes
 
-Puzzle inputs and cached puzzle text should stay local and should not be committed to public repositories.
+Puzzle inputs, cached puzzle text, session records, and other local Advent of Code data should stay local and should not be committed to public repositories.
