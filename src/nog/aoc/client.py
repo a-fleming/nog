@@ -9,12 +9,12 @@ from nog.aoc.errors import (
     UnexpectedResponseError,
 )
 from nog.auth.session import SessionRecord
+from nog._version import __version__
 
 BASE_URL = "https://adventofcode.com"
 DOMAIN = ".adventofcode.com"
 TIMEOUT = 10  # seconds
-VERSION = "0.3.0"
-USER_AGENT = f"nog/{VERSION}  (+https://github.com/a-fleming/nog)"
+USER_AGENT = f"nog/{__version__}  (+https://github.com/a-fleming/nog)"
 
 
 def fetch_input(year: int, day: int, session_record: SessionRecord) -> str:
@@ -25,7 +25,6 @@ def fetch_input(year: int, day: int, session_record: SessionRecord) -> str:
     cookies = {
         "session": session_record.value
     }
-
     try:
         response = requests.get(url, headers=headers, cookies=cookies, timeout=TIMEOUT)
     except requests.ConnectionError as err:
